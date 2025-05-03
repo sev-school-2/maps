@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Прогулочные маршруты Северодвинска</title>
+    <style>
+        :root {
+            --primary: #2c5f8b;
+            --secondary: #4a8cb3;
+            --accent: #f7a11a;
+            --light: #f5f9fc;
+            --dark: #1a3a4e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: var(--light);
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: var(--accent);
+        }
+        
+        .hero {
+            background: url('https://images.unsplash.com/photo-1470115636492-6d2b56f9146d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') center/cover no-repeat;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            text-align: center;
+        }
+        
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            color: white;
+            width: 100%;
+        }
+        
+        .hero h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .main-content {
+            padding: 3rem 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .section-title h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .routes-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .route-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .route-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .route-img {
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .route-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .route-card:hover .route-img img {
+            transform: scale(1.05);
+        }
+        
+        .route-number {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--accent);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .route-info {
+            padding: 1.5rem;
+        }
+        
+        .route-info h3 {
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .route-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .route-meta span {
+            display: flex;
+            align-items: center;
+        }
+        
+        .route-meta i {
+            margin-right: 5px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+        
+        .btn:hover {
+            background-color: #1a4d73;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .route-steps {
+            margin-top: 1.5rem;
+            padding-left: 1.5rem;
+            border-left: 3px solid var(--accent);
+        }
+        
+        .route-steps h4 {
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .route-steps ol {
+            padding-left: 1rem;
+        }
+        
+        .route-steps li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .transport-icon {
+            margin-left: 5px;
+            color: var(--primary);
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+        
+        .copyright {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            nav ul {
+                margin-top: 1rem;
+                justify-content: center;
+            }
+            
+            nav ul li {
+                margin: 0 0.5rem;
+            }
+            
+            .hero {
+                height: 250px;
+            }
+            
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Sevmash_Logo.svg/1200px-Sevmash_Logo.svg.png" alt="Северодвинск" style="filter: brightness(0) invert(1);">
+                    <span>Прогулки по Северодвинску</span>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#walking">Пешие</a></li>
+                        <li><a href="#bike">Велосипедные</a></li>
+                        <li><a href="#about">О проекте</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <section class="hero">
+        <div class="hero-content container">
+            <h1>Открой для себя Северодвинск</h1>
+            <p>Пешие и велосипедные маршруты из Приморского парка</p>
+        </div>
+    </section>
+    
+    <main class="main-content container">
+        <section id="walking">
+            <div class="section-title">
+                <h2>Пешие маршруты</h2>
+                <p>Неспешные прогулки по самым красивым местам города</p>
+            </div>
+            
+            <div class="routes-container">
+                <div class="route-card">
+                    <div class="route-img">
+                        <img src="https://images.unsplash.com/photo-1470004914212-05527e49370b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Парковая зона">
+                        <div class="route-number">1</div>
+                    </div>
+                    <div class="route-info">
+                        <h3>По следам корабелов</h3>
+                        <p>Исторический маршрут по местам, связанным с судостроением</p>
+                        <div class="route-meta">
+                            <span><i class="fas fa-route"></i> 3.5 км</span>
+                            <span><i class="fas fa-clock"></i> 1 ч 10 мин</span>
+                            <span><i class="fas fa-walking"></i></span>
+                        </div>
+                        
+                        <div class="route-steps">
+                            <h4>Как пройти:</h4>
+                            <ol>
+                                <li>Начните от центрального входа в Приморский парк</li>
+                                <li>Идите по аллее к памятнику Ленину</li>
+                                <li>Поверните на ул. Ломоносова</li>
+                                <li>Дойдите до музея судостроения</li>
+                                <li>Вернитесь по ул. Советской к парку</li>
+                            </ol>
+                        </div>
+                        
+                        <a href="#" class="btn">Скачать маршрут</a>
+                    </div>
+                </div>
+                
+                <div class="route-card">
+                    <div class="route-img">
+                        <img src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Исторический центр">
+                        <div class="route-number">2</div>
+                    </div>
+                    <div class="route-info">
+                        <h3>Литературный Северодвинск</h3>
+                        <p>Места, связанные с писателями и поэтами города</p>
+                        <div class="route-meta">
+                            <span><i class="fas fa-route"></i> 2.8 км</span>
+                            <span><i class="fas fa-clock"></i> 50 мин</span>
+                            <span><i class="fas fa-walking"></i></span>
+                        </div>
+                        
+                        <div class="route-steps">
+                            <h4>Как пройти:</h4>
+                            <ol>
+                                <li>От фонтана в Приморском парке</li>
+                                <li>К центральной библиотеке</li>
+                                <li>Дом-музей поэта Николая Рубцова</li>
+                                <li>Памятник "Книга" на площади Победы</li>
+                                <li>Возвращение через сквер у Драмтеатра</li>
+                            </ol>
+                        </div>
+                        
+                        <a href="#" class="btn">Скачать маршрут</a>
+                    </div>
+                </div>
+                
+                <div class="route-card">
+                    <div class="route-img">
+                        <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Набережная">
+                        <div class="route-number">3</div>
+                    </div>
+                    <div class="route-info">
+                        <h3>Парковая мозаика</h3>
+                        <p>Маршрут по зеленым зонам и скверам города</p>
+                        <div class="route-meta">
+                            <span><i class="fas fa-route"></i> 4.2 км</span>
+                            <span><i class="fas fa-clock"></i> 1 ч 20 мин</span>
+                            <span><i class="fas fa-walking"></i></span>
+                        </div>
+                        
+                        <div class="route-steps">
+                            <h4>Как пройти:</h4>
+                            <ol>
+                                <li>Приморский парк (старт у детской площадки)</li>
+                                <li>Сквер у кинотеатра "Россия"</li>
+                                <li>Парк за ДК "Строитель"</li>
+                                <li>Аллея молодоженов</li>
+                                <li>Возвращение через стадион "Север"</li>
+                            </ol>
+                        </div>
+                        
+                        <a href="#" class="btn">Скачать маршрут</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="bike" style="margin-top: 4rem;">
+            <div class="section-title">
+                <h2>Велосипедные маршруты</h2>
+                <p>Для тех, кто любит активный отдых</p>
+            </div>
+            
+            <div class="routes-container">
+                <div class="route-card">
+                    <div class="route-img">
+                        <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Велосипедный маршрут">
+                        <div class="route-number">4</div>
+                    </div>
+                    <div class="route-info">
+                        <h3>Кругосветка по Северодвинску</h3>
+                        <p>Кольцевой маршрут по основным достопримечательностям</p>
+                        <div class="route-meta">
+                            <span><i class="fas fa-route"></i> 12.5 км</span>
+                            <span><i class="fas fa-clock"></i> 1 ч 30 мин</span>
+                            <span><i class="fas fa-bicycle"></i></span>
+                        </div>
+                        
+                        <div class="route-steps">
+                            <h4>Как проехать:</h4>
+                            <ol>
+                                <li>Старт от велопарковки в Приморском парке</li>
+                                <li>По набережной до яхт-клуба</li>
+                                <li>Через центр города к парку "Белое озеро"</li>
+                                <li>По велодорожке вдоль ул. Мира</li>
+                                <li>Возвращение через старый город</li>
+                            </ol>
+                        </div>
+                        
+                        <a href="#" class="btn">Скачать маршрут</a>
+                    </div>
+                </div>
+                
+                <div class="route-card">
+                    <div class="route-img">
+                        <img src="https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Велосипедный маршрут">
+                        <div class="route-number">5</div>
+                    </div>
+                    <div class="route-info">
+                        <h3>Промышленный велотур</h3>
+                        <p>Маршрут вдоль исторических промышленных объектов</p>
+                        <div class="route-meta">
+                            <span><i class="fas fa-route"></i> 8.7 км</span>
+                            <span><i class="fas fa-clock"></i> 1 ч</span>
+                            <span><i class="fas fa-bicycle"></i></span>
+                        </div>
+                        
+                        <div class="route-steps">
+                            <h4>Как проехать:</h4>
+                            <ol>
+                                <li>От Приморского парка к Севмашу</li>
+                                <li>Проезд вдоль судоремонтного завода</li>
+                                <li>Памятник "Севмашстрой"</li>
+                                <li>Музей судостроения</li>
+                                <li>Возвращение по велодорожке ул. Ленина</li>
+                            </ol>
+                        </div>
+                        
+                        <a href="#" class="btn">Скачать маршрут</a>
+                    </div>
+                </div>
+                
+                <div class="route-card">
+                    <div class="route-img">
+                        <img src="https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Велосипедный маршрут">
+                        <div class="route-number">6</div>
+                    </div>
+                    <div class="route-info">
+                        <h3>Зеленый марафон</h3>
+                        <p>Маршрут по паркам и скверам с минимальным выездом на дороги</p>
+                        <div class="route-meta">
+                            <span><i class="fas fa-route"></i> 9.3 км</span>
+                            <span><i class="fas fa-clock"></i> 1 ч 10 мин</span>
+                            <span><i class="fas fa-bicycle"></i></span>
+                        </div>
+                        
+                        <div class="route-steps">
+                            <h4>Как проехать:</h4>
+                            <ol>
+                                <li>Приморский парк (старт у кафе)</li>
+                                <li>Парк у ДК "Строитель"</li>
+                                <li>Сквер 60-летия Победы</li>
+                                <li>Парковая зона у Белого озера</li>
+                                <li>Возвращение через пешеходные зоны</li>
+                            </ol>
+                        </div>
+                        
+                        <a href="#" class="btn">Скачать маршрут</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section style="margin: 4rem 0; text-align: center;">
+            <h2>Как пользоваться маршрутами?</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                    <i class="fas fa-map-marked-alt" style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                    <h3>1. Выберите маршрут</h3>
+                    <p>Ознакомьтесь с описанием и временем прохождения</p>
+                </div>
+                <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                    <i class="fas fa-list-ol" style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                    <h3>2. Изучите описание</h3>
+                    <p>Пошаговое описание поможет не сбиться с пути</p>
+                </div>
+                <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                    <i class="fas fa-mobile-alt" style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                    <h3>3. Сохраните на телефон</h3>
+                    <p>Или распечатайте карту маршрута</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer id="about">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>О проекте</h3>
+                    <p>Сайт создан для жителей и гостей Северодвинска, чтобы помочь им лучше узнать город и его окрестности.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <p>Если у вас есть предложения по новым маршрутам, пишите на:</p>
+                    <p>sevdvinsk-routes@mail.ru</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Важно</h3>
+                    <p>Соблюдайте правила дорожного движения и бережно относитесь к природе.</p>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2023 Прогулки по Северодвинску. Все маршруты начинаются от Приморского парка.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
