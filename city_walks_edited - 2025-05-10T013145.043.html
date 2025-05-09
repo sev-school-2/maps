@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="ru"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Городские прогулки</title>
+    <style>
+        :root {
+            --primary: #2c5f8b;
+            --secondary: #4a8cb3;
+            --accent: #f7a11a;
+            --light: #f5f9fc;
+            --dark: #1a3a4e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background-color: var(--dark);
+            position: sticky;
+            top: 80px;
+            z-index: 99;
+            margin-top: 10px;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 14px;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+        
+        .nav-tab:hover {
+            color: var(--accent);
+        }
+        
+        .nav-tab.active {
+            background-color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .main-content {
+            padding: 2rem 0;
+        }
+        
+        .route-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .route-img, .playground-img, .history-photo {
+            height: 220px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .card[data-card-id] {
+            max-width: 350px;
+            margin: 30 auto;
+        }
+        
+        .route-img img, .playground-img img, .history-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        
+        .card:hover img {
+            transform: scale(1.05);
+        }
+        
+        .carousel {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+        }
+        
+        .carousel img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        .carousel img.active {
+            opacity: 1;
+        }
+        
+        .route-card .route-info, .card .route-info {
+            padding: 1.5rem;
+        }
+        
+        .route-card h2, .card h2 {
+            font-size: 22px;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .route-card p, .card p {
+            color: #666;
+            font-size: 15px;
+        }
+        
+        .route-details .route-info {
+            padding: 1.5rem;
+        }
+        
+        .route-details h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .checkpoint {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+        }
+        
+        .checkpoint-circle {
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            margin-right: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .checkpoint-circle.completed {
+            background-color: var(--primary);
+        }
+        
+        .checkpoint-circle.completed::after {
+            content: '✓';
+            color: white;
+            font-size: 18px;
+        }
+        
+        .checkpoint span {
+            font-size: 17px;
+        }
+        
+        .checkpoint-img {
+            width: 160px;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-left: 12px;
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background-color: #e0e0e0;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--primary);
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+        
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 17px;
+            cursor: pointer;
+            width: 100%;
+            margin: 12px 0;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #1a4d73;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .btn.back {
+            background-color: #666;
+        }
+        
+        .btn.back:hover {
+            background-color: #555;
+        }
+        
+        .btn.edit, .btn.save, .btn.add-route, .btn.add-checkpoint, .btn.delete-checkpoint, .btn.change-img, .btn.add-img, .btn.delete-route-card, .btn.add-playground, .btn.delete-playground-card {
+            background-color: var(--accent);
+        }
+        
+        .btn.edit:hover, .btn.save:hover, .btn.add-route:hover, .btn.add-checkpoint:hover, .btn.delete-checkpoint:hover, .btn.change-img:hover, .btn.add-img:hover, .btn.delete-route-card:hover, .btn.add-playground:hover, .btn.delete-playground-card:hover {
+            background-color: #e69100;
+        }
+        
+        .btn.delete-route, .btn.delete-route-card, .btn.delete-playground-card {
+            background-color: #d32f2f;
+            padding: 8px 16px;
+            font-size: 15px;
+        }
+        
+        .btn.delete-route:hover, .btn.delete-route-card:hover, .btn.delete-playground-card:hover {
+            background-color: #b71c1c;
+        }
+        
+        .saved-routes .route-info {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .timer-display {
+            font-size: 26px;
+            text-align: center;
+            margin: 15px 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .stats {
+            margin-top: 15px;
+            font-size: 15px;
+            color: #666;
+        }
+        
+        .stats p {
+            margin: 6px 0;
+        }
+        
+        .route-details {
+            display: none;
+        }
+        
+        .route-details.active {
+            display: block;
+        }
+        
+        .saved-routes .card {
+            cursor: default;
+        }
+        
+        [contenteditable]:focus {
+            outline: 2px solid var(--accent);
+            background-color: #fff9e6;
+        }
+        
+        @media (max-width: 768px) {
+            .carousel {
+                height: 220px;
+                margin: 0 -20px;
+                width: 400px;
+            }
+            
+            .header h1 {
+                font-size: 1.6rem;
+            }
+            
+            .nav-tabs {
+                top: 60px;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            .route-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .card {
+                margin: 0 auto;
+                max-width: 400px;
+            }
+            
+            .checkpoint-img {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+            
+            .btn.delete-route, .btn.delete-route-card, .btn.delete-playground-card {
+                width: auto;
+                float: none;
+                margin-left: 0;
+            }
+            
+            .saved-routes .route-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .btn.edit, .btn.save, .btn.add-route, .btn.add-playground {
+                width: auto;
+                padding: 10px 30px;
+                margin: 10px 10px 10px 0;
+            }
+            
+            .btn.change-img, .btn.add-img, .btn.delete-checkpoint, .btn.add-checkpoint, .btn.delete-route, .btn.delete-route-card, .btn.delete-playground-card {
+                padding: 8px 20px;
+                font-size: 15px;
+            }
+            
+            .route-list {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            }
+        }
+		.saved-routes .route-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1 contenteditable="false">Городские прогулки</h1>
+        </div>
+    </div>
+
+    <div class="nav-tabs">
+        <a href="#" class="nav-tab active" data-tab="routes">Маршруты</a>
+        <a href="#" class="nav-tab" data-tab="playgrounds">Площадки</a>
+        <a href="#" class="nav-tab" data-tab="history">История</a>
+        <a href="#" class="nav-tab" data-tab="profile">Личный кабинет</a>
+    </div>
+
+    <div class="main-content container">
+        
+        
+
+        <!-- Вкладка Маршруты -->
+        <div id="routes" class="tab-content active">
+            
+            <div class="route-list" style="display: none;">
+                <div class="card route-card" data-route="victory-park">
+                    <div class="carousel">
+                        <img src="https://images.unsplash.com/photo-1470004914212-05527e49370b?ixlib=rb-1.2.1&amp;auto=format&amp;fit=crop&amp;w=1350&amp;q=80" alt="Парк Победы" class="active">
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    <div class="route-info">
+                        <h2 contenteditable="false">Парк Победы</h2>
+                        <p contenteditable="false">Длина маршрута: 3.5 км</p>
+                    </div>
+                </div>
+                <div class="card route-card" data-route="historic-center">
+                    <div class="carousel">
+                        <img src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?ixlib=rb-1.2.1&amp;auto=format&amp;fit=crop&amp;w=1350&amp;q=80" alt="Исторический центр" class="active">
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    <div class="route-info">
+                        <h2 contenteditable="false">Исторический центр</h2>
+                        <p contenteditable="false">Длина маршрута: 2.1 км</p>
+                    </div>
+                </div>
+                <div class="card route-card" data-route="riverfront">
+                    <div class="carousel">
+                        <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-1.2.1&amp;auto=format&amp;fit=crop&amp;w=1350&amp;q=80" alt="Набережная реки" class="active">
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    <div class="route-info">
+                        <h2 contenteditable="false">Набережная реки</h2>
+                        <p contenteditable="false">Длина маршрута: 4.2 км</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Детали маршрутов -->
+            <div id="victory-park" class="route-details card active">
+                <div class="route-info">
+                    <h2 contenteditable="false">Парк Победы (3.5 км)</h2>
+                    <div class="progress-bar">
+                        <div class="progress" id="victory-park-progress" style="width: 0%;"></div>
+                    </div>
+                    <div class="checkpoints">
+                        <div class="checkpoint" data-checkpoint-id="1">
+                            <div class="checkpoint-circle" data-checkpoint="1" style="pointer-events: auto;"></div>
+                            <span contenteditable="false">Вход в парк</span>
+                            <img src="https://via.placeholder.com/150?text=Вход+в+парк" alt="Вход в парк" class="checkpoint-img">
+                            
+                            
+                            
+                        </div>
+                        <div class="checkpoint" data-checkpoint-id="2">
+                            <div class="checkpoint-circle" data-checkpoint="2" style="pointer-events: auto;"></div>
+                            <span contenteditable="false">Мемориал Победы</span>
+                            <img src="https://via.placeholder.com/150?text=Мемориал+Победы" alt="Мемориал Победы" class="checkpoint-img">
+                            
+                            
+                            
+                        </div>
+                        
+                        
+                    </div>
+                    
+                    <button class="btn back" id="back-victory-park">Назад</button>
+                    <button class="btn" id="start-walk-victory-park">Начать прогулку</button>
+                    <button class="btn" id="pause-walk-victory-park" disabled="">Пауза</button>
+                    <button class="btn" id="finish-walk-victory-park" disabled="">Завершить</button>
+                    <div class="timer-display">
+                        <span id="walk-time-victory-park">00:00:00</span>
+                    </div>
+                    <div class="stats">
+                        <p>Пройдено пунктов: <span id="checkpoints-covered-victory-park">0/2</span></p>
+                        <p>Время: <span id="time-covered-victory-park">00:00:00</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="historic-center" class="route-details card">
+                <div class="route-info">
+                    <h2 contenteditable="false">Исторический центр (2.1 км)</h2>
+                    <div class="progress-bar">
+                        <div class="progress" id="historic-center-progress" style="width: 0%;"></div>
+                    </div>
+                    <div class="checkpoints">
+                        <div class="checkpoint" data-checkpoint-id="1">
+                            <div class="checkpoint-circle" data-checkpoint="1" style="pointer-events: auto;"></div>
+                            <span contenteditable="false">Городская управа</span>
+                            <img src="https://via.placeholder.com/150?text=Городская+управа" alt="Городская управа" class="checkpoint-img">
+                            
+                            
+                            
+                        </div>
+                        <div class="checkpoint" data-checkpoint-id="2">
+                            <div class="checkpoint-circle" data-checkpoint="2" style="pointer-events: auto;"></div>
+                            <span contenteditable="false">Площадь Свободы</span>
+                            <img src="https://via.placeholder.com/150?text=Площадь+Свободы" alt="Площадь Свободы" class="checkpoint-img">
+                            
+                            
+                            
+                        </div>
+                        <div class="checkpoint" data-checkpoint-id="3">
+                            <div class="checkpoint-circle" data-checkpoint="3" style="pointer-events: auto;"></div>
+                            <span contenteditable="false">Старинная церковь</span>
+                            <img src="https://via.placeholder.com/150?text=Старинная+церковь" alt="Старинная церковь" class="checkpoint-img">
+                            
+                            
+                            
+                        </div>
+                    </div>
+                    
+                    <button class="btn back" id="back-historic-center">Назад</button>
+                    <button class="btn" id="start-walk-historic-center">Начать прогулку</button>
+                    <button class="btn" id="pause-walk-historic-center" disabled="">Пауза</button>
+                    <button class="btn" id="finish-walk-historic-center" disabled="">Завершить</button>
+                    <div class="timer-display">
+                        <span id="walk-time-historic-center">00:00:00</span>
+                    </div>
+                    <div class="stats">
+                        <p>Пройдено пунктов: <span id="checkpoints-covered-historic-center">0/3</span></p>
+                        <p>Время: <span id="time-covered-historic-center">00:00:00</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="riverfront" class="route-details card">
+                <div class="route-info">
+                    <h2 contenteditable="false">Набережная реки (4.2 км)</h2>
+                    <div class="progress-bar">
+                        <div class="progress" id="riverfront-progress" style="width: 0%;"></div>
+                    </div>
+                    <div class="checkpoints">
+                        <div class="checkpoint" data-checkpoint-id="1">
+                            <div class="checkpoint-circle" data-checkpoint="1" style="pointer-events: auto;"></div>
+                            <span contenteditable="false">Мост Любви</span>
+                            <img src="https://via.placeholder.com/150?text=Мост+Любви" alt="Мост Любви" class="checkpoint-img">
+                            
+                            
+                            
+                        </div>
+                        <div class="checkpoint" data-checkpoint-id="2">
+                            <div class="checkpoint-circle" data-checkpoint="2" style="pointer-events: auto;"></div>
+                            <span contenteditable="false">Смотровая площадка</span>
+                            <img src="https://via.placeholder.com/150?text=Смотровая+площадка" alt="Смотровая площадка" class="checkpoint-img">
+                            
+                            
+                            
+                        </div>
+                        <div class="checkpoint" data-checkpoint-id="3">
+                            <div class="checkpoint-circle" data-checkpoint="3" style="pointer-events: auto;"></div>
+                            <span contenteditable="false">Пляж</span>
+                            <img src="https://via.placeholder.com/150?text=Пляж" alt="Пляж" class="checkpoint-img">
+                            
+                            
+                            
+                        </div>
+                        <div class="checkpoint" data-checkpoint-id="4">
+                            <div class="checkpoint-circle" data-checkpoint="4" style="pointer-events: auto;"></div>
+                            <span contenteditable="false">Рыбацкая пристань</span>
+                            <img src="https://via.placeholder.com/150?text=Рыбацкая+пристань" alt="Рыбацкая пристань" class="checkpoint-img">
+                            
+                            
+                            
+                        </div>
+                    </div>
+                    
+                    <button class="btn back" id="back-riverfront">Назад</button>
+                    <button class="btn" id="start-walk-riverfront">Начать прогулку</button>
+                    <button class="btn" id="pause-walk-riverfront" disabled="">Пауза</button>
+                    <button class="btn" id="finish-walk-riverfront" disabled="">Завершить</button>
+                    <div class="timer-display">
+                        <span id="walk-time-riverfront">00:00:00</span>
+                    </div>
+                    <div class="stats">
+                        <p>Пройдено пунктов: <span id="checkpoints-covered-riverfront">0/4</span></p>
+                        <p>Время: <span id="time-covered-riverfront">00:00:00</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка Площадки -->
+        <div id="playgrounds" class="tab-content">
+            
+            <div class="route-list" style="display: none;">
+                <div class="card" data-card-id="playground-1">
+                    <div class="carousel">
+                        <img src="https://via.placeholder.com/600x400?text=Площадка+Солнечная" alt="Площадка Солнечная" class="playground-img active">
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    <div class="route-info">
+                        <h2 contenteditable="false">Детская площадка "Солнечная"</h2>
+                        <h3 contenteditable="false">Игры:</h3>
+                        <ul contenteditable="false">
+                            <li>Прятки</li>
+                            <li>Классики</li>
+                            <li>Качели-горки</li>
+                            <li>Песочные замки</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card" data-card-id="playground-2">
+                    <div class="carousel">
+                        <img src="https://via.placeholder.com/600x400?text=Площадка+Олимпик" alt="Площадка Олимпик" class="playground-img active">
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    <div class="route-info">
+                        <h2 contenteditable="false">Спортивная площадка "Олимпик"</h2>
+                        <h3 contenteditable="false">Игры:</h3>
+                        <ul contenteditable="false">
+                            <li>Баскетбол</li>
+                            <li>Волейбол</li>
+                            <li>Бадминтон</li>
+                            <li>Скакалки</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка История -->
+        <div id="history" class="tab-content">
+            
+            <div class="route-list" style="display: none;">
+                <div class="card" data-card-id="history-1">
+                    <div class="carousel">
+                        <img src="https://via.placeholder.com/600x400?text=История+города" alt="История города" class="history-photo active">
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    <div class="route-info">
+                        <h2 contenteditable="false">История города</h2>
+                        <p contenteditable="false">Основан в 1785 году как поселение на берегу реки...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка Личный кабинет -->
+        <div id="profile" class="tab-content">
+            <div class="card">
+                <div class="route-info">
+                    <h2 contenteditable="false">Сохраненные маршруты</h2>
+                    <div class="saved-routes"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+// Примечание: Для полной функциональности (например, localStorage), откройте файл через локальный сервер,
+// например, с помощью команды `python -m http.server` и доступа через http://localhost:8000
+
+// Предотвращение множественной загрузки скрипта
+if (window.cityWalksScriptLoaded) {
+    console.log('Скрипт уже загружен, пропуск повторной инициализации');
+} else {
+    window.cityWalksScriptLoaded = true;
+
+    // Загрузка сохраненного состояния
+    function loadPersistedState() {
+        if (window.location.protocol === 'file:') {
+            console.log('Файловая схема: localStorage недоступен, пропуск загрузки состояния');
+            activateRoutesTab();
+            return;
+        }
+        try {
+            const savedHtml = localStorage.getItem('editedCityWalks');
+            const savedRoutesData = localStorage.getItem('routesData');
+            const savedEditMode = localStorage.getItem('isEditMode') === 'true';
+
+            if (savedHtml) {
+                const parser = new DOMParser();
+                const savedDoc = parser.parseFromString(savedHtml, 'text/html');
+                const savedMainContent = savedDoc.querySelector('.main-content');
+                const currentMainContent = document.querySelector('.main-content');
+                if (savedMainContent && currentMainContent) {
+                    currentMainContent.innerHTML = savedMainContent.innerHTML;
+                    console.log('DOM восстановлен из localStorage');
+                }
+            }
+
+            if (savedRoutesData) {
+                routes = JSON.parse(savedRoutesData);
+                console.log('Объект routes восстановлен из localStorage:', routes);
+            }
+
+            if (savedEditMode) {
+                isEditMode = true;
+                toggleEditMode(true);
+                console.log('Режим редактирования восстановлен');
+            }
+
+            // Всегда активируем вкладку "Маршруты" и показываем список маршрутов
+            activateRoutesTab();
+            bindAllEvents();
+        } catch (e) {
+            console.error('Ошибка загрузки сохраненного состояния:', e);
+            activateRoutesTab();
+        }
+    }
+
+    // Активация вкладки "Маршруты"
+    function activateRoutesTab() {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.route-details').forEach(d => d.classList.remove('active'));
+        document.querySelectorAll('.route-list').forEach(list => list.style.display = 'grid');
+        
+        const routesTab = document.querySelector('.nav-tab[data-tab="routes"]');
+        const routesContent = document.getElementById('routes');
+        
+        if (routesTab && routesContent) {
+            routesTab.classList.add('active');
+            routesContent.classList.add('active');
+            console.log('Вкладка "Маршруты" активирована');
+        }
+    }
+
+    // При загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.location.protocol !== 'file:') {
+            loadPersistedState();
+        } else {
+            console.log('Файловая схема: пропуск localStorage, привязка событий');
+            activateRoutesTab();
+            bindAllEvents();
+        }
+    }, { once: true });
+
+    // Переключение вкладок
+    function bindTabEvents() {
+        const tabs = document.querySelectorAll('.nav-tab');
+        tabs.forEach(tab => {
+            tab.removeEventListener('click', handleTabClick);
+            tab.addEventListener('click', handleTabClick, { once: false });
+        });
+
+        function handleTabClick(e) {
+            e.preventDefault();
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.route-details').forEach(d => d.classList.remove('active'));
+            document.querySelectorAll('.route-list').forEach(list => list.style.display = 'grid');
+            const tab = e.target;
+            tab.classList.add('active');
+            const tabId = tab.getAttribute('data-tab');
+            const tabContent = document.getElementById(tabId);
+            if (tabContent) {
+                tabContent.classList.add('active');
+                if (tabId === 'profile') {
+                    loadSavedRoutes();
+                }
+                console.log(`Вкладка переключена: ${tabId}`);
+            } else {
+                console.error(`Вкладка с ID ${tabId} не найдена`);
+            }
+        }
+    }
+
+    // Управление маршрутами
+    let routes = {
+        'victory-park': { name: 'Парк Победы', checkpoints: 4, distance: '3.5 км', progressId: 'victory-park-progress', checkpointsCoveredId: 'checkpoints-covered-victory-park' },
+        'historic-center': { name: 'Исторический центр', checkpoints: 3, distance: '2.1 км', progressId: 'historic-center-progress', checkpointsCoveredId: 'checkpoints-covered-historic-center' },
+        'riverfront': { name: 'Набережная реки', checkpoints: 4, distance: '4.2 км', progressId: 'riverfront-progress', checkpointsCoveredId: 'checkpoints-covered-riverfront' }
+    };
+
+    let isEditMode = false;
+
+    // Включение/выключение режима редактирования
+    function toggleEditMode(enable) {
+        const editButton = document.getElementById('edit-site');
+        const saveButton = document.getElementById('save-changes');
+        const addRouteButton = document.getElementById('add-route');
+        const addPlaygroundButton = document.getElementById('add-playground');
+        const addHistoryButton = document.getElementById('add-history');
+
+        isEditMode = enable;
+
+        const editableElements = document.querySelectorAll('[contenteditable]');
+        editableElements.forEach(el => {
+            el.setAttribute('contenteditable', enable);
+        });
+
+        const editButtons = document.querySelectorAll('.change-img, .add-img, .delete-route-card, .add-checkpoint, .delete-checkpoint, .delete-playground-card, .delete-history-card');
+        editButtons.forEach(btn => {
+            btn.style.display = enable ? 'block' : 'none';
+        });
+
+        if (addRouteButton) addRouteButton.style.display = enable ? 'block' : 'none';
+        if (addPlaygroundButton) addPlaygroundButton.style.display = enable ? 'block' : 'none';
+        if (addHistoryButton) addHistoryButton.style.display = enable ? 'block' : 'none';
+
+        if (editButton && saveButton) {
+            editButton.style.display = enable ? 'none' : 'inline-block';
+            saveButton.style.display = enable ? 'inline-block' : 'none';
+        }
+
+        const checkpointCircles = document.querySelectorAll('.checkpoint-circle');
+        checkpointCircles.forEach(circle => {
+            circle.style.pointerEvents = enable ? 'none' : 'auto';
+        });
+
+        bindRouteNameEditEvents();
+    }
+
+    // Показ деталей маршрута
+    function bindRouteCardEvents() {
+        const cards = document.querySelectorAll('.route-card');
+        cards.forEach(card => {
+            card.removeEventListener('click', handleRouteCardClick);
+            card.addEventListener('click', handleRouteCardClick, { once: false });
+        });
+
+        function handleRouteCardClick(e) {
+            if (isEditMode) {
+                if (e.target.classList.contains('btn') || e.target.tagName === 'H2' || e.target.tagName === 'P' || e.target.tagName === 'INPUT') {
+                    e.stopPropagation();
+                    return;
+                }
+            }
+            const routeList = document.querySelectorAll('.route-list');
+            routeList.forEach(list => list.style.display = 'none');
+            const routeId = e.currentTarget.getAttribute('data-route');
+            const routeDetails = document.getElementById(routeId);
+            if (routeDetails) {
+                routeDetails.classList.add('active');
+                console.log(`Маршрут открыт: ${routeId}`);
+            } else {
+                console.error(`Детали маршрута не найдены: ${routeId}`);
+            }
+        }
+    }
+
+    // Кнопка "Назад"
+    function bindBackButtonEvents() {
+        const buttons = document.querySelectorAll('.btn.back');
+        buttons.forEach(button => {
+            button.removeEventListener('click', handleBackButtonClick);
+            button.addEventListener('click', handleBackButtonClick, { once: false });
+        });
+
+        function handleBackButtonClick() {
+            const routeId = this.id.replace('back-', '');
+            const routeDetails = document.getElementById(routeId);
+            if (routeDetails) routeDetails.classList.remove('active');
+            const routeLists = document.querySelectorAll('.route-list');
+            if (routeLists) routeLists.forEach(list => list.style.display = 'grid');
+            console.log(`Назад для маршрута: ${routeId}`);
+        }
+    }
+
+    // Загрузка сохраненных маршрутов
+    function loadSavedRoutes() {
+        if (window.location.protocol === 'file:') {
+            console.log('Файловая схема: localStorage недоступен, пропуск загрузки маршрутов');
+            return;
+        }
+        try {
+            const savedRoutes = JSON.parse(localStorage.getItem('savedRoutes') || '[]');
+            const savedRoutesContainer = document.querySelector('.saved-routes');
+            if (savedRoutesContainer) {
+                savedRoutesContainer.innerHTML = '';
+                savedRoutes.forEach((route, index) => {
+                    const routeCard = document.createElement('div');
+                    routeCard.className = 'card';
+                    routeCard.dataset.routeIndex = index;
+                    routeCard.innerHTML = `
+                        <div class="route-info">
+                            <div>
+                                <h2 contenteditable="${isEditMode}">${route.name}</h2>
+                                <p contenteditable="${isEditMode}">Длина маршрута: ${route.distance}</p>
+                                <p contenteditable="${isEditMode}">Пройдено пунктов: ${route.checkpointsCompleted}/${route.checkpointsTotal}</p>
+                                <p contenteditable="${isEditMode}">Время: ${route.time}</p>
+                                <p contenteditable="${isEditMode}">Дата: ${route.date}</p>
+                            </div>
+                            <button class="btn delete-route" data-route-index="${index}">Удалить</button>
+                        </div>
+                    `;
+                    savedRoutesContainer.appendChild(routeCard);
+                });
+                const deleteButtons = savedRoutesContainer.querySelectorAll('.delete-route');
+                deleteButtons.forEach(btn => {
+                    btn.removeEventListener('click', handleDeleteSavedRoute);
+                    btn.addEventListener('click', handleDeleteSavedRoute, { once: false });
+                });
+                console.log(`Загружено ${savedRoutes.length} сохраненных маршрутов`);
+            }
+        } catch (e) {
+            console.error('Ошибка загрузки сохраненных маршрутов:', e);
+        }
+    }
+
+    // Удаление сохраненного маршрута
+    function handleDeleteSavedRoute(e) {
+        e.stopPropagation();
+        if (window.location.protocol === 'file:') {
+            console.log('Файловая схема: localStorage недоступен, удаление невозможно');
+            return;
+        }
+        const routeIndex = e.target.dataset.routeIndex;
+        try {
+            const savedRoutes = JSON.parse(localStorage.getItem('savedRoutes') || '[]');
+            if (savedRoutes[routeIndex]) {
+                savedRoutes.splice(routeIndex, 1);
+                localStorage.setItem('savedRoutes', JSON.stringify(savedRoutes));
+                loadSavedRoutes();
+                console.log(`Сохраненный маршрут с индексом ${routeIndex} удален`);
+            }
+        } catch (e) {
+            console.error('Ошибка удаления сохраненного маршрута:', e);
+        }
+    }
+
+    // Удаление карточки маршрута
+    function bindDeleteRouteCardEvents() {
+        const deleteButtons = document.querySelectorAll('.delete-route-card');
+        deleteButtons.forEach(btn => {
+            btn.removeEventListener('click', handleDeleteRouteCard);
+            btn.addEventListener('click', handleDeleteRouteCard, { once: false });
+        });
+
+        function handleDeleteRouteCard(e) {
+            e.stopPropagation();
+            const routeId = e.target.dataset.route;
+            const routeCard = document.querySelector(`.route-card[data-route="${routeId}"]`);
+            const routeDetails = document.getElementById(routeId);
+            if (routeCard) routeCard.remove();
+            if (routeDetails) routeDetails.remove();
+            delete routes[routeId];
+            saveRoutesData();
+            bindAllEvents();
+            console.log(`Маршрут ${routeId} удален`);
+        }
+    }
+
+    // Удаление карточки площадки
+    function bindDeletePlaygroundCardEvents() {
+        const deleteButtons = document.querySelectorAll('.delete-playground-card');
+        deleteButtons.forEach(btn => {
+            btn.removeEventListener('click', handleDeletePlaygroundCard);
+            btn.addEventListener('click', handleDeletePlaygroundCard, { once: false });
+        });
+
+        function handleDeletePlaygroundCard(e) {
+            e.stopPropagation();
+            const cardId = e.target.dataset.cardId;
+            const card = document.querySelector(`.card[data-card-id="${cardId}"]`);
+            if (card) {
+                card.remove();
+                saveState();
+                console.log(`Площадка удалена: ${cardId}`);
+            }
+        }
+    }
+
+    // Удаление карточки истории
+    function bindDeleteHistoryCardEvents() {
+        const deleteButtons = document.querySelectorAll('.delete-history-card');
+        deleteButtons.forEach(btn => {
+            btn.removeEventListener('click', handleDeleteHistoryCard);
+            btn.addEventListener('click', handleDeleteHistoryCard, { once: false });
+        });
+
+        function handleDeleteHistoryCard(e) {
+            e.stopPropagation();
+            const cardId = e.target.dataset.cardId;
+            const card = document.querySelector(`.card[data-card-id="${cardId}"]`);
+            if (card) {
+                card.remove();
+                saveState();
+                console.log(`История удалена: ${cardId}`);
+            }
+        }
+    }
+
+    // Карусель изображений
+    function initCarousel(card) {
+        const carousel = card.querySelector('.carousel');
+        if (!carousel) return;
+        const images = carousel.querySelectorAll('img');
+        if (images.length <= 1) return;
+
+        let currentIndex = 0;
+        function updateCarousel() {
+            images.forEach((img, index) => {
+                img.classList.toggle('active', index === currentIndex);
+            });
+        }
+
+        if (carousel.dataset.intervalId) {
+            clearInterval(parseInt(carousel.dataset.intervalId));
+        }
+
+        const intervalId = setInterval(() => {
+            currentIndex = (currentIndex + 1) % images.length;
+            updateCarousel();
+        }, 3000);
+        carousel.dataset.intervalId = intervalId;
+    }
+
+    function bindCarouselEvents() {
+        const cards = document.querySelectorAll('.route-card, .card[data-card-id]');
+        cards.forEach(card => initCarousel(card));
+        console.log(`Инициализировано ${cards.length} каруселей`);
+    }
+
+    // Редактирование сайта
+    function bindEditEvents() {
+        const editButton = document.getElementById('edit-site');
+        const saveButton = document.getElementById('save-changes');
+
+        if (!editButton) {
+            console.error('Кнопка "Редактировать" (#edit-site) не найдена');
+            return;
+        }
+
+        editButton.removeEventListener('click', handleEditClick);
+        editButton.addEventListener('click', handleEditClick, { once: false });
+
+        function handleEditClick() {
+            console.log('Кнопка "Редактировать" нажата');
+            toggleEditMode(true);
+            saveState();
+        }
+
+        if (saveButton) {
+            saveButton.removeEventListener('click', handleSaveClick);
+            saveButton.addEventListener('click', handleSaveClick, { once: false });
+
+            function handleSaveClick() {
+                console.log('Кнопка "Сохранить" нажата');
+                saveState();
+                const clone = document.documentElement.cloneNode(true);
+                clone.querySelector('#edit-site')?.remove();
+                clone.querySelector('#save-changes')?.remove();
+                clone.querySelector('#add-route')?.remove();
+                clone.querySelector('#add-playground')?.remove();
+                clone.querySelector('#add-history')?.remove();
+                clone.querySelectorAll('.change-img, .add-img, .delete-route-card, .add-checkpoint, .delete-checkpoint, .image-upload, .add-image-upload, .checkpoint-image-upload, .delete-playground-card, .delete-history-card').forEach(el => el.remove());
+                clone.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', 'false'));
+                clone.querySelectorAll('[style*="display: block"]').forEach(el => {
+                    if (el.classList.contains('change-img') || el.classList.contains('add-img') || 
+                        el.classList.contains('delete-route-card') || el.classList.contains('add-checkpoint') || 
+                        el.classList.contains('delete-checkpoint') || el.classList.contains('image-upload') || 
+                        el.classList.contains('add-image-upload') || el.classList.contains('checkpoint-image-upload') || 
+                        el.classList.contains('delete-playground-card') || el.classList.contains('delete-history-card') ||
+                        el.id === 'add-route' || el.id === 'add-playground' || el.id === 'add-history') {
+                        el.remove();
+                    } else {
+                        el.style.display = '';
+                    }
+                });
+
+                clone.querySelectorAll('.checkpoint-circle').forEach(circle => {
+                    circle.style.pointerEvents = 'auto';
+                });
+
+                const newHtml = `<!DOCTYPE html>\n${clone.outerHTML}`;
+                const blob = new Blob([newHtml], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'city_walks_edited.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                console.log('Файл сохранен для скачивания');
+            }
+        }
+    }
+
+    // Сохранение состояния
+    function saveState() {
+        if (window.location.protocol !== 'file:') {
+            try {
+                localStorage.setItem('editedCityWalks', document.documentElement.outerHTML);
+                localStorage.setItem('isEditMode', isEditMode);
+                saveRoutesData();
+                console.log('Состояние сохранено в localStorage');
+            } catch (e) {
+                console.error('Ошибка сохранения состояния:', e);
+            }
+        }
+    }
+
+    function saveRoutesData() {
+        if (window.location.protocol !== 'file:') {
+            try {
+                localStorage.setItem('routesData', JSON.stringify(routes));
+                console.log('Объект routes сохранен в localStorage');
+            } catch (e) {
+                console.error('Ошибка сохранения routes:', e);
+            }
+        }
+    }
+
+    // Обработка редактирования названий маршрутов
+    function bindRouteNameEditEvents() {
+        const routeCards = document.querySelectorAll('.route-card');
+        routeCards.forEach(card => {
+            const routeId = card.dataset.route;
+            const cardTitle = card.querySelector('h2');
+            const detailsTitle = document.querySelector(`#${routeId} h2`);
+            if (cardTitle && detailsTitle) {
+                cardTitle.removeEventListener('input', handleCardTitleInput);
+                detailsTitle.removeEventListener('input', handleDetailsTitleInput);
+                
+                cardTitle.addEventListener('input', handleCardTitleInput, { once: false });
+                detailsTitle.addEventListener('input', handleDetailsTitleInput, { once: false });
+
+                function handleCardTitleInput() {
+                    const newName = cardTitle.textContent.trim();
+                    routes[routeId].name = newName;
+                    detailsTitle.textContent = `${newName} (${routes[routeId].distance})`;
+                    saveRoutesData();
+                    console.log(`Название маршрута ${routeId} обновлено: ${newName}`);
+                }
+
+                function handleDetailsTitleInput() {
+                    let newName = detailsTitle.textContent.trim();
+                    newName = newName.replace(/\s*\(.*\)/, '');
+                    routes[routeId].name = newName;
+                    cardTitle.textContent = newName;
+                    detailsTitle.textContent = `${newName} (${routes[routeId].distance})`;
+                    saveRoutesData();
+                    console.log(`Название маршрута ${routeId} обновлено: ${newName}`);
+                }
+            }
+        });
+    }
+
+    // Загрузка изображений
+    function bindImageUploadEvents() {
+        const imageUploads = document.querySelectorAll('.image-upload');
+        imageUploads.forEach(input => {
+            input.removeEventListener('change', handleImageUpload);
+            input.addEventListener('change', handleImageUpload, { once: false });
+        });
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const id = e.target.dataset.route || e.target.dataset.cardId;
+                    const carousel = document.querySelector(`[data-route="${id}"] .carousel, [data-card-id="${id}"] .carousel`);
+                    if (carousel) {
+                        const firstImg = carousel.querySelector('img');
+                        if (firstImg) {
+                            firstImg.src = reader.result;
+                            firstImg.alt = file.name;
+                            initCarousel(document.querySelector(`[data-route="${id}"], [data-card-id="${id}"]`));
+                            saveState();
+                            console.log(`Изображение обновлено для: ${id}`);
+                        }
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        const addImageUploads = document.querySelectorAll('.add-image-upload');
+        addImageUploads.forEach(input => {
+            input.removeEventListener('change', handleAddImageUpload);
+            input.addEventListener('change', handleAddImageUpload, { once: false });
+        });
+
+        function handleAddImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const id = e.target.dataset.route || e.target.dataset.cardId;
+                    const carousel = document.querySelector(`[data-route="${id}"] .carousel, [data-card-id="${id}"] .carousel`);
+                    if (carousel) {
+                        const img = document.createElement('img');
+                        img.src = reader.result;
+                        img.alt = file.name;
+                        img.className = e.target.dataset.route ? '' : e.target.dataset.cardId.startsWith('playground') ? 'playground-img' : 'history-photo';
+                        carousel.appendChild(img);
+                        const card = document.querySelector(`[data-route="${id}"], [data-card-id="${id}"]`);
+                        initCarousel(card);
+                        saveState();
+                        console.log(`Изображение добавлено для: ${id}`);
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        const changeImgButtons = document.querySelectorAll('.change-img:not(.checkpoint-img-btn)');
+        changeImgButtons.forEach(btn => {
+            btn.removeEventListener('click', handleChangeImgClick);
+            btn.addEventListener('click', handleChangeImgClick, { once: false });
+        });
+
+        function handleChangeImgClick(e) {
+            e.stopPropagation();
+            const id = e.target.dataset.route || e.target.dataset.cardId;
+            const input = document.querySelector(`.image-upload[data-route="${id}"], .image-upload[data-card-id="${id}"]`);
+            if (input) input.click();
+        }
+
+        const addImgButtons = document.querySelectorAll('.add-img');
+        addImgButtons.forEach(btn => {
+            btn.removeEventListener('click', handleAddImgClick);
+            btn.addEventListener('click', handleAddImgClick, { once: false });
+        });
+
+        function handleAddImgClick(e) {
+            e.stopPropagation();
+            const id = e.target.dataset.route || e.target.dataset.cardId;
+            const input = document.querySelector(`.add-image-upload[data-route="${id}"], .add-image-upload[data-card-id="${id}"]`);
+            if (input) {
+                input.value = '';
+                input.click();
+            }
+        }
+
+        const checkpointImageUploads = document.querySelectorAll('.checkpoint-image-upload');
+        checkpointImageUploads.forEach(input => {
+            input.removeEventListener('change', handleCheckpointImageUpload);
+            input.addEventListener('change', handleCheckpointImageUpload, { once: false });
+        });
+
+        function handleCheckpointImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const checkpointId = e.target.dataset.checkpointId;
+                    const img = document.querySelector(`.checkpoint[data-checkpoint-id="${checkpointId}"] .checkpoint-img`);
+                    if (img) {
+                        img.src = reader.result;
+                        img.alt = file.name;
+                        saveState();
+                        console.log(`Изображение чекпоинта обновлено: ${checkpointId}`);
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        const checkpointImgButtons = document.querySelectorAll('.checkpoint-img-btn');
+        checkpointImgButtons.forEach(btn => {
+            btn.removeEventListener('click', handleCheckpointImgClick);
+            btn.addEventListener('click', handleCheckpointImgClick, { once: false });
+        });
+
+        function handleCheckpointImgClick(e) {
+            e.stopPropagation();
+            const checkpointId = e.target.dataset.checkpointId;
+            const input = document.querySelector(`.checkpoint-image-upload[data-checkpoint-id="${checkpointId}"]`);
+            if (input) input.click();
+        }
+    }
+
+    // Добавление нового маршрута
+    function handleAddRoute() {
+        try {
+            const routeId = `route-${Date.now()}`;
+            const routeName = 'Новый маршрут';
+            const routeDistance = '0 км';
+
+            routes[routeId] = {
+                name: routeName,
+                checkpoints: 1,
+                distance: routeDistance,
+                progressId: `${routeId}-progress`,
+                checkpointsCoveredId: `${routeId}-checkpoints-covered`
+            };
+
+            const routeCard = document.createElement('div');
+            routeCard.className = 'card route-card';
+            routeCard.dataset.route = routeId;
+            routeCard.innerHTML = `
+                <div class="carousel">
+                    <img src="https://via.placeholder.com/600x400?text=${encodeURIComponent(routeName)}" alt="${routeName}" class="active">
+                </div>
+                <button class="btn change-img" style="display: ${isEditMode ? 'block' : 'none'};" data-route="${routeId}">Изменить картинку</button>
+                <input type="file" accept="image/*" style="display: none;" class="image-upload" data-route="${routeId}">
+                <button class="btn add-img" style="display: ${isEditMode ? 'block' : 'none'};" data-route="${routeId}">Добавить картинку</button>
+                <input type="file" accept="image/*" style="display: none;" class="add-image-upload" data-route="${routeId}">
+                <button class="btn delete-route-card" style="display: ${isEditMode ? 'block' : 'none'};" data-route="${routeId}">Удалить</button>
+                <div class="route-info">
+                    <h2 contenteditable="${isEditMode}">${routeName}</h2>
+                    <p contenteditable="${isEditMode}">Длина маршрута: ${routeDistance}</p>
+                </div>
+            `;
+            const routeList = document.querySelector('.route-list');
+            if (!routeList) throw new Error('Route list not found');
+            routeList.appendChild(routeCard);
+
+            const routeDetails = document.createElement('div');
+            routeDetails.id = routeId;
+            routeDetails.className = 'route-details card';
+            routeDetails.innerHTML = `
+                <div class="route-info">
+                    <h2 contenteditable="${isEditMode}">${routeName} (${routeDistance})</h2>
+                    <div class="progress-bar">
+                        <div class="progress" id="${routeId}-progress" style="width: 0%;"></div>
+                    </div>
+                    <div class="checkpoints">
+                        <div class="checkpoint" data-checkpoint-id="1">
+                            <div class="checkpoint-circle" data-checkpoint="1"></div>
+                            <span contenteditable="${isEditMode}">Пункт 1</span>
+                            <img src="https://via.placeholder.com/150?text=Пункт+1" alt="Пункт 1" class="checkpoint-img">
+                            <button class="btn change-img checkpoint-img-btn" style="display: ${isEditMode ? 'block' : 'none'};" data-checkpoint-id="1">Изменить картинку</button>
+                            <input type="file" accept="image/*" style="display: none;" class="checkpoint-image-upload" data-checkpoint-id="1">
+                            <button class="btn delete-checkpoint" style="display: ${isEditMode ? 'block' : 'none'};" data-checkpoint-id="1">Удалить</button>
+                        </div>
+                    </div>
+                    <button class="btn add-checkpoint" style="display: ${isEditMode ? 'block' : 'none'};" data-route="${routeId}">Добавить пункт</button>
+                    <button class="btn back" id="back-${routeId}">Назад</button>
+                    <button class="btn" id="start-walk-${routeId}">Начать прогулку</button>
+                    <button class="btn" id="pause-walk-${routeId}" disabled>Пауза</button>
+                    <button class="btn" id="finish-walk-${routeId}" disabled>Завершить</button>
+                    <div class="timer-display">
+                        <span id="walk-time-${routeId}">00:00:00</span>
+                    </div>
+                    <div class="stats">
+                        <p>Пройдено пунктов: <span id="${routeId}-checkpoints-covered">0/1</span></p>
+                        <p>Время: <span id="time-covered-${routeId}">00:00:00</span></p>
+                    </div>
+                </div>
+            `;
+            const routesTab = document.getElementById('routes');
+            if (!routesTab) throw new Error('Routes tab not found');
+            routesTab.appendChild(routeDetails);
+
+            initRoute(routeId);
+            initCarousel(routeCard);
+            bindRouteCardEvents();
+            bindBackButtonEvents();
+            bindImageUploadEvents();
+            bindCheckpointEvents();
+            bindRouteNameEditEvents();
+            bindDeleteRouteCardEvents();
+            saveState();
+            console.log(`Добавлен новый маршрут: ${routeId}`);
+        } catch (e) {
+            console.error('Ошибка добавления нового маршрута:', e);
+        }
+    }
+
+    // Добавление новой площадки
+    function handleAddPlayground() {
+        try {
+            const playgroundId = `playground-${Date.now()}`;
+            
+            const playgroundCard = document.createElement('div');
+            playgroundCard.className = 'card';
+            playgroundCard.dataset.cardId = playgroundId;
+            playgroundCard.innerHTML = `
+                <div class="carousel">
+                    <img src="https://via.placeholder.com/600x400?text=Новая+площадка" alt="Новая площадка" class="playground-img active">
+                </div>
+                <button class="btn change-img" style="display: ${isEditMode ? 'block' : 'none'};" data-card-id="${playgroundId}">Изменить картинку</button>
+                <input type="file" accept="image/*" style="display: none;" class="image-upload" data-card-id="${playgroundId}">
+                <button class="btn add-img" style="display: ${isEditMode ? 'block' : 'none'};" data-card-id="${playgroundId}">Добавить картинку</button>
+                <input type="file" accept="image/*" style="display: none;" class="add-image-upload" data-card-id="${playgroundId}">
+                <button class="btn delete-playground-card" style="display: ${isEditMode ? 'block' : 'none'};" data-card-id="${playgroundId}">Удалить</button>
+                <div class="route-info">
+                    <h2 contenteditable="${isEditMode}">Новая площадка</h2>
+                    <h3 contenteditable="${isEditMode}">Игры:</h3>
+                    <ul contenteditable="${isEditMode}">
+                        <li>Новая игра 1</li>
+                        <li>Новая игра 2</li>
+                    </ul>
+                </div>
+            `;
+            
+            const routeList = document.querySelector('#playgrounds .route-list');
+            if (routeList) {
+                routeList.appendChild(playgroundCard);
+                initCarousel(playgroundCard);
+                bindImageUploadEvents();
+                bindDeletePlaygroundCardEvents();
+                saveState();
+                console.log(`Добавлена новая площадка: ${playgroundId}`);
+            }
+        } catch (e) {
+            console.error('Ошибка добавления новой площадки:', e);
+        }
+    }
+
+    // Добавление новой истории
+    function handleAddHistory() {
+        try {
+            const historyId = `history-${Date.now()}`;
+            
+            const historyCard = document.createElement('div');
+            historyCard.className = 'card';
+            historyCard.dataset.cardId = historyId;
+            historyCard.innerHTML = `
+                <div class="carousel">
+                    <img src="https://via.placeholder.com/600x400?text=Новая+история" alt="Новая история" class="history-photo active">
+                </div>
+                <button class="btn change-img" style="display: ${isEditMode ? 'block' : 'none'};" data-card-id="${historyId}">Изменить картинку</button>
+                <input type="file" accept="image/*" style="display: none;" class="image-upload" data-card-id="${historyId}">
+                <button class="btn add-img" style="display: ${isEditMode ? 'block' : 'none'};" data-card-id="${historyId}">Добавить картинку</button>
+                <input type="file" accept="image/*" style="display: none;" class="add-image-upload" data-card-id="${historyId}">
+                <button class="btn delete-history-card" style="display: ${isEditMode ? 'block' : 'none'};" data-card-id="${historyId}">Удалить</button>
+                <div class="route-info">
+                    <h2 contenteditable="${isEditMode}">Новая история</h2>
+                    <p contenteditable="${isEditMode}">Описание новой истории...</p>
+                </div>
+            `;
+            
+            const routeList = document.querySelector('#history .route-list');
+            if (routeList) {
+                routeList.appendChild(historyCard);
+                initCarousel(historyCard);
+                bindImageUploadEvents();
+                bindDeleteHistoryCardEvents();
+                saveState();
+                console.log(`Добавлена новая история: ${historyId}`);
+            }
+        } catch (e) {
+            console.error('Ошибка добавления новой истории:', e);
+        }
+    }
+
+    function bindAddRouteEvents() {
+        const addRouteButton = document.querySelector('#add-route .add-route');
+        if (addRouteButton) {
+            addRouteButton.removeEventListener('click', handleAddRoute);
+            addRouteButton.addEventListener('click', handleAddRoute, { once: false });
+            console.log('Обработчик для кнопки "Добавить маршрут" привязан');
+        }
+    }
+
+    function bindAddPlaygroundEvents() {
+        const addButton = document.querySelector('#add-playground .add-playground');
+        if (addButton) {
+            addButton.removeEventListener('click', handleAddPlayground);
+            addButton.addEventListener('click', handleAddPlayground, { once: false });
+            console.log('Обработчик для кнопки "Добавить площадку" привязан');
+        }
+    }
+
+    function bindAddHistoryEvents() {
+        const addButton = document.querySelector('#add-history .add-history');
+        if (addButton) {
+            addButton.removeEventListener('click', handleAddHistory);
+            addButton.addEventListener('click', handleAddHistory, { once: false });
+            console.log('Обработчик для кнопки "Добавить историю" привязан');
+        }
+    }
+
+    // Добавление и удаление чекпоинтов
+    function bindCheckpointEvents() {
+        const mainContent = document.querySelector('.main-content');
+        if (mainContent) {
+            mainContent.removeEventListener('click', handleCheckpointClickDelegation);
+            mainContent.addEventListener('click', handleCheckpointClickDelegation, { once: false });
+        }
+
+        const addButtons = document.querySelectorAll('.add-checkpoint');
+        addButtons.forEach(btn => {
+            btn.removeEventListener('click', handleAddCheckpoint);
+            btn.addEventListener('click', handleAddCheckpoint, { once: false });
+        });
+
+        function handleAddCheckpoint(e) {
+            e.stopPropagation();
+            const routeId = e.target.dataset.route;
+            const checkpointsContainer = document.querySelector(`#${routeId} .checkpoints`);
+            if (!checkpointsContainer) return;
+            
+            const checkpointCount = checkpointsContainer.querySelectorAll('.checkpoint').length + 1;
+            routes[routeId].checkpoints = checkpointCount;
+
+            const checkpoint = document.createElement('div');
+            checkpoint.className = 'checkpoint';
+            checkpoint.dataset.checkpointId = checkpointCount;
+            checkpoint.innerHTML = `
+                <div class="checkpoint-circle" data-checkpoint="${checkpointCount}"></div>
+                <span contenteditable="${isEditMode}">Пункт ${checkpointCount}</span>
+                <img src="https://via.placeholder.com/150?text=Пункт+${checkpointCount}" alt="Пункт ${checkpointCount}" class="checkpoint-img">
+                <button class="btn change-img checkpoint-img-btn" style="display: ${isEditMode ? 'block' : 'none'};" data-checkpoint-id="${checkpointCount}">Изменить картинку</button>
+                <input type="file" accept="image/*" style="display: none;" class="checkpoint-image-upload" data-checkpoint-id="${checkpointCount}">
+                <button class="btn delete-checkpoint" style="display: ${isEditMode ? 'block' : 'none'};" data-checkpoint-id="${checkpointCount}">Удалить</button>
+            `;
+            checkpointsContainer.appendChild(checkpoint);
+
+            const checkpointsCovered = document.getElementById(routes[routeId].checkpointsCoveredId);
+            if (checkpointsCovered) checkpointsCovered.textContent = `0/${checkpointCount}`;
+            
+            bindImageUploadEvents();
+            bindDeleteCheckpointEvents();
+            saveState();
+            console.log(`Добавлен чекпоинт ${checkpointCount} для маршрута: ${routeId}`);
+        }
+
+        bindDeleteCheckpointEvents();
+
+        function bindDeleteCheckpointEvents() {
+            const deleteButtons = document.querySelectorAll('.delete-checkpoint');
+            deleteButtons.forEach(btn => {
+                btn.removeEventListener('click', handleDeleteCheckpoint);
+                btn.addEventListener('click', handleDeleteCheckpoint, { once: false });
+            });
+
+            function handleDeleteCheckpoint(e) {
+                e.stopPropagation();
+                const checkpointId = e.target.dataset.checkpointId;
+                const checkpoint = document.querySelector(`.checkpoint[data-checkpoint-id="${checkpointId}"]`);
+                if (!checkpoint) return;
+                const routeId = checkpoint.closest('.route-details').id;
+                checkpoint.remove();
+                routes[routeId].checkpoints--;
+                const checkpointsCovered = document.getElementById(routes[routeId].checkpointsCoveredId);
+                if (checkpointsCovered) checkpointsCovered.textContent = `0/${routes[routeId].checkpoints}`;
+                initRoute(routeId);
+                saveState();
+                console.log(`Удален чекпоинт ${checkpointId} для маршрута: ${routeId}`);
+            }
+        }
+
+        function handleCheckpointClickDelegation(e) {
+            if (!e.target.classList.contains('checkpoint-circle')) return;
+            if (isEditMode) return;
+
+            const circle = e.target;
+            const routeDetails = circle.closest('.route-details');
+            if (!routeDetails) return;
+            const routeId = routeDetails.id;
+            if (!routes[routeId]) return;
+
+            const isCompleted = circle.classList.contains('completed');
+            let completedCheckpoints = document.querySelectorAll(`#${routeId} .checkpoint-circle.completed`).length;
+            if (isCompleted) {
+                circle.classList.remove('completed');
+                completedCheckpoints--;
+            } else {
+                circle.classList.add('completed');
+                completedCheckpoints++;
+            }
+
+            const progressPercent = (completedCheckpoints / routes[routeId].checkpoints) * 100;
+            const progressBar = document.getElementById(routes[routeId].progressId);
+            if (progressBar) progressBar.style.width = `${progressPercent}%`;
+            const checkpointsCovered = document.getElementById(routes[routeId].checkpointsCoveredId);
+            if (checkpointsCovered) checkpointsCovered.textContent = `${completedCheckpoints}/${routes[routeId].checkpoints}`;
+            saveState();
+            console.log(`Чекпоинт обновлен для маршрута: ${routeId}`);
+        }
+    }
+
+    // Инициализация маршрута
+    function initRoute(routeId) {
+        try {
+            let timer;
+            let seconds = 0;
+            let isWalking = false;
+
+            function updateTimerDisplay() {
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+                const timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                const walkTime = document.getElementById(`walk-time-${routeId}`);
+                const timeCovered = document.getElementById(`time-covered-${routeId}`);
+                if (walkTime) walkTime.textContent = timeStr;
+                if (timeCovered) timeCovered.textContent = timeStr;
+            }
+
+            const startButton = document.getElementById(`start-walk-${routeId}`);
+            if (startButton) {
+                startButton.removeEventListener('click', handleStartWalk);
+                startButton.addEventListener('click', handleStartWalk, { once: false });
+
+                function handleStartWalk() {
+                    if (!isWalking) {
+                        isWalking = true;
+                        startButton.disabled = true;
+                        const pauseButton = document.getElementById(`pause-walk-${routeId}`);
+                        const finishButton = document.getElementById(`finish-walk-${routeId}`);
+                        if (pauseButton) {
+                            pauseButton.disabled = false;
+                            pauseButton.textContent = 'Пауза';
+                        }
+                        if (finishButton) finishButton.disabled = false;
+                        timer = setInterval(() => {
+                            seconds++;
+                            updateTimerDisplay();
+                        }, 1000);
+                        console.log(`Прогулка начата для маршрута: ${routeId}`);
+                    }
+                }
+            }
+
+            const pauseButton = document.getElementById(`pause-walk-${routeId}`);
+            if (pauseButton) {
+                pauseButton.removeEventListener('click', handlePauseWalk);
+                pauseButton.addEventListener('click', handlePauseWalk, { once: false });
+
+                function handlePauseWalk() {
+                    if (isWalking) {
+                        clearInterval(timer);
+                        isWalking = false;
+                        pauseButton.textContent = 'Продолжить прогулку';
+                    } else {
+                        isWalking = true;
+                        pauseButton.textContent = 'Пауза';
+                        timer = setInterval(() => {
+                            seconds++;
+                            updateTimerDisplay();
+                        }, 1000);
+                    }
+                    console.log(`Прогулка ${isWalking ? 'возобновлена' : 'приостановлена'} для маршрута: ${routeId}`);
+                }
+            }
+
+            const finishButton = document.getElementById(`finish-walk-${routeId}`);
+            if (finishButton) {
+                finishButton.removeEventListener('click', handleFinishWalk);
+                finishButton.addEventListener('click', handleFinishWalk, { once: false });
+
+                function handleFinishWalk() {
+                    clearInterval(timer);
+                    isWalking = false;
+                    if (startButton) startButton.disabled = false;
+                    if (pauseButton) {
+                        pauseButton.disabled = true;
+                        pauseButton.textContent = 'Пауза';
+                    }
+                    finishButton.disabled = true;
+
+                    if (window.location.protocol !== 'file:') {
+                        try {
+                            const savedRoutes = JSON.parse(localStorage.getItem('savedRoutes') || '[]');
+                            const completedCheckpoints = document.querySelectorAll(`#${routeId} .checkpoint-circle.completed`).length;
+                            savedRoutes.push({
+                                id: routeId,
+                                name: routes[routeId].name,
+                                distance: routes[routeId].distance,
+                                checkpointsCompleted: completedCheckpoints,
+                                checkpointsTotal: routes[routeId].checkpoints,
+                                time: document.getElementById(`time-covered-${routeId}`)?.textContent || '00:00:00',
+                                date: new Date().toLocaleDateString('ru-RU')
+                            });
+                            localStorage.setItem('savedRoutes', JSON.stringify(savedRoutes));
+                            loadSavedRoutes();
+                            console.log(`Прогулка сохранена для маршрута: ${routeId}`);
+                        } catch (e) {
+                            console.error('Ошибка сохранения маршрута:', e);
+                        }
+                    }
+
+                    const checkpointCircles = document.querySelectorAll(`#${routeId} .checkpoint-circle`);
+                    checkpointCircles.forEach(circle => circle.classList.remove('completed'));
+
+                    const progressBar = document.getElementById(routes[routeId].progressId);
+                    if (progressBar) progressBar.style.width = '0%';
+
+                    const checkpointsCovered = document.getElementById(routes[routeId].checkpointsCoveredId);
+                    if (checkpointsCovered) checkpointsCovered.textContent = `0/${routes[routeId].checkpoints}`;
+
+                    const walkTime = document.getElementById(`walk-time-${routeId}`);
+                    const timeCovered = document.getElementById(`time-covered-${routeId}`);
+                    if (walkTime) walkTime.textContent = '00:00:00';
+                    if (timeCovered) timeCovered.textContent = '00:00:00';
+                    seconds = 0;
+
+                    saveState();
+
+                    const routeDetails = document.getElementById(routeId);
+                    if (routeDetails) routeDetails.classList.remove('active');
+                    const routeLists = document.querySelectorAll('.route-list');
+                    routeLists.forEach(list => list.style.display = 'grid');
+                    console.log(`Прогулка завершена для маршрута: ${routeId}`);
+                }
+            }
+        } catch (e) {
+            console.error(`Ошибка инициализации маршрута ${routeId}:`, e);
+        }
+    }
+
+    // Привязка всех событий
+    function bindAllEvents() {
+        try {
+            bindTabEvents();
+            bindRouteCardEvents();
+            bindBackButtonEvents();
+            bindCarouselEvents();
+            bindEditEvents();
+            bindImageUploadEvents();
+            bindAddRouteEvents();
+            bindAddPlaygroundEvents();
+            bindAddHistoryEvents();
+            bindCheckpointEvents();
+            bindDeleteRouteCardEvents();
+            bindDeletePlaygroundCardEvents();
+            bindDeleteHistoryCardEvents();
+            bindRouteNameEditEvents();
+
+            const routeElements = document.querySelectorAll('.route-details');
+            routeElements.forEach(routeElement => {
+                const routeId = routeElement.id;
+                if (routes[routeId]) {
+                    initRoute(routeId);
+                } else {
+                    routes[routeId] = {
+                        name: routeElement.querySelector('h2').textContent.split(' (')[0],
+                        checkpoints: routeElement.querySelectorAll('.checkpoint').length,
+                        distance: routeElement.querySelector('h2').textContent.match(/\((.*)\)/)?.[1] || '0 км',
+                        progressId: `${routeId}-progress`,
+                        checkpointsCoveredId: `${routeId}-checkpoints-covered`
+                    };
+                    initRoute(routeId);
+                }
+            });
+
+            console.log('Все события привязаны');
+        } catch (e) {
+            console.error('Ошибка привязки событий:', e);
+        }
+    }
+
+    // Предотвращение нежелательных перезагрузок
+    window.addEventListener('beforeunload', function(e) {
+        if (isEditMode) {
+            e.preventDefault();
+            e.returnValue = 'У вас есть несохраненные изменения. Уверены, что хотите уйти?';
+        }
+    }, { once: false });
+}
+</script>
+
+</body></html>
